@@ -5,6 +5,18 @@ import { useRouter } from 'next/navigation';
 import { APP_NAME } from "@/utils/constants";
 import Link from "next/link";
 
+type LocationType = {
+  location_name: string;
+  longitude: number;
+  latitude: number;
+  timezone_offset: number;
+  timezone: string;
+  complete_name: string;
+  country: string;
+  administrative_zone_1: string;
+  administrative_zone_2: string;
+};
+
 export default function Home() {
   const router = useRouter();
   const [formData, setFormData] = useState({
@@ -17,8 +29,8 @@ export default function Home() {
   const [locationStatus, setLocationStatus] = useState<'idle' | 'loading' | 'valid' | 'invalid'>('idle');
   const [locationError, setLocationError] = useState('');
   const [isFormValid, setIsFormValid] = useState(false);
-  const [locationOptions, setLocationOptions] = useState<any[]>([]);
-  const [selectedLocation, setSelectedLocation] = useState<any | null>(null);
+  const [locationOptions, setLocationOptions] = useState<LocationType[]>([]);
+  const [selectedLocation, setSelectedLocation] = useState<LocationType | null>(null);
 
   // Prefill form from localStorage
   useEffect(() => {
@@ -73,19 +85,6 @@ export default function Home() {
     }
   };
 
-  // Debounce location validation to avoid too many API calls
-  const debounce = (func: (...args: any[]) => void, delay: number) => {
-    let timer: NodeJS.Timeout;
-    return (...args: any[]) => {
-      clearTimeout(timer);
-      timer = setTimeout(() => func(...args), delay);
-    };
-  };
-
-  const validateLocationDebounced = debounce((location: string) => {
-    validateLocation(location);
-  }, 500);
-
   const validateLocation = async (customLocation?: string) => {
     const locationToValidate = customLocation ?? formData.placeOfBirth;
     if (!locationToValidate) return;
@@ -100,7 +99,6 @@ export default function Home() {
         body: JSON.stringify({ location: locationToValidate })
       });
       const data = await res.json();
-      console.log(data);
       if (data.valid && data.locations.length > 0) {
         setLocationOptions(() => [...data.locations]);
         if (data.locations.length === 1) {
@@ -118,23 +116,22 @@ export default function Home() {
         setLocationStatus('invalid');
         setLocationError(data.error || 'Location not found');
       }
-    } catch (err) {
+    } catch {
       setLocationStatus('invalid');
       setLocationError('Error validating location');
     }
   };
 
-  const handleLocationSelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const idx = e.target.value;
-    if (idx !== '') {
-      setSelectedLocation(locationOptions[Number(idx)]);
-      setLocationStatus('valid');
-      setLocationError('');
-    } else {
-      setSelectedLocation(null);
-      setLocationStatus('idle');
-    }
+  // Debounce location validation to avoid too many API calls
+  const debounce = <A extends unknown[]>(func: (...args: A) => void, delay: number) => {
+    let timer: NodeJS.Timeout;
+    return (...args: A) => {
+      clearTimeout(timer);
+      timer = setTimeout(() => func(...args), delay);
+    };
   };
+
+  const validateLocationDebounced = debounce<[string]>((location) => validateLocation(location), 500);
 
   return (
     <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">

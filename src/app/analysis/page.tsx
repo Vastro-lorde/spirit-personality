@@ -38,7 +38,7 @@ interface AnalysisResult {
   houseInterpretation: string;
 }
 
-function isSameUserData(a: any, b: any) {
+function isSameUserData(a: UserData | null, b: UserData | null): boolean {
   if (!a || !b) return false;
   return (
     a.name === b.name &&
@@ -143,7 +143,8 @@ export default function Analysis() {
       margin: { left: margin },
       styles: { cellPadding: 4, fontSize: 11 },
     });
-    y = (pdf as any).lastAutoTable.finalY + 20;
+    y = (pdf as jsPDF & { lastAutoTable?: { finalY: number } }).lastAutoTable?.finalY ?? y;
+    y += 20;
 
     pdf.setFontSize(14);
     pdf.text('Planets Interpretation:', margin, y);
@@ -179,7 +180,8 @@ export default function Analysis() {
       margin: { left: margin },
       styles: { cellPadding: 4, fontSize: 11 },
     });
-    y = (pdf as any).lastAutoTable.finalY + 20;
+    y = (pdf as jsPDF & { lastAutoTable?: { finalY: number } }).lastAutoTable?.finalY ?? y;
+    y += 20;
 
     pdf.setFontSize(14);
     pdf.text('Houses Interpretation:', margin, y);

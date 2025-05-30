@@ -9,6 +9,15 @@ const genAI = new GoogleGenerativeAI(apiKey);
 
 const ASTROLOGY_API_BASE = 'https://json.freeastrologyapi.com';
 
+interface PlanetData {
+  planet: { en: string };
+  zodiac_sign: { name: { en: string } };
+}
+interface HouseData {
+  House: number;
+  zodiac_sign: { name: { en: string } };
+}
+
 export async function POST(request: Request) {
   try {
     const data = await request.json();
@@ -65,19 +74,19 @@ export async function POST(request: Request) {
     console.log(planetData);
     console.log(houseData);
     // 3. Filter Planets: get planet name and sign
-    const planets = (planetData.output || []).map((p: any) => ({
+    const planets = (planetData.output || []).map((p: PlanetData) => ({
       name: p?.planet?.en,
       sign: p?.zodiac_sign?.name?.en
     }));
     // 4. Filter Houses: get house number and sign
-    const houses = (houseData.output?.Houses || []).map((h: any) => ({
+    const houses = (houseData.output?.Houses || []).map((h: HouseData) => ({
       house: h.House,
       sign: h.zodiac_sign?.name?.en
     }));
     // 5. Get Big 3: Ascendant, Sun, Moon
-    const ascendant = planets.find((p: any) => p.name.toLowerCase() === 'ascendant')?.sign || '';
-    const sun = planets.find((p: any) => p.name.toLowerCase() === 'sun')?.sign || '';
-    const moon = planets.find((p: any) => p.name.toLowerCase() === 'moon')?.sign || '';
+    const ascendant = planets.find((p: { name: string; }) => p.name.toLowerCase() === 'ascendant')?.sign || '';
+    const sun = planets.find((p: { name: string; }) => p.name.toLowerCase() === 'sun')?.sign || '';
+    const moon = planets.find((p: { name: string; }) => p.name.toLowerCase() === 'moon')?.sign || '';
     // 6. Gemini prompt for planets
     let planetInterpretation = '';
     if (planets.length > 0) {
