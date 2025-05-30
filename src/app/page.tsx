@@ -3,7 +3,6 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { APP_NAME } from "@/utils/constants";
-import Link from "next/link";
 
 type LocationType = {
   location_name: string;
@@ -273,8 +272,9 @@ export default function Home() {
           </form>
         </div>
       </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <Link href="/take-test" className="text-white">Take Test</Link>
+      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-between w-full">
+        <p className="text-white">Created by Seun Daniel Omatsola aka Vastrolorde Spiritual</p> 
+        <p>{new Date().toLocaleDateString()}</p>
       </footer>
     </div>
   );
