@@ -90,7 +90,7 @@ export async function POST(request: Request) {
     // 6. Gemini prompt for planets
     let planetInterpretation = '';
     if (planets.length > 0) {
-      const planetPrompt = `In short and concise way, Interpret the following astrological planet placements for ${name} (${planets.map((p: { name: any; }) => p.name).join(', ')}). For each, explain what it means for the personality.\n\n${JSON.stringify(planets, null, 2)} return in markdown format and 1000 characters or less`;
+      const planetPrompt = `In short and concise way, Interpret the following astrological planet placements for ${name} (${planets.map((p: { name: string; }) => p.name).join(', ')}). For each, explain what it means for the personality.\n\n${JSON.stringify(planets, null, 2)} return in markdown format and 1000 characters or less`;
       const planetModel = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
       const planetResult = await planetModel.generateContent({
         contents: [{ role: 'user', parts: [{ text: planetPrompt }] }],
